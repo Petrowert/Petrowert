@@ -19,10 +19,10 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		Integer i, j;
 		String[] head_table = new String[15];
-		Double[][] arr = new Double[4][15];
+		String[][] arr = new String[4][15];
     	for(int a = 0; a < 4; a++)
     		for(int b = 0; b < 15; b++)
-    			arr[a][b] = 0.;
+    			arr[a][b] = "0";
     	Integer num_cur = 10; // Number current month
 		Integer num_year = 2020; // Number current month
 		Boolean y = false;
@@ -48,6 +48,12 @@ public class Main {
     		}
     		head_table[k + 2] = String.valueOf(num_year - 1) + zero + String.valueOf((num_cur + k - 1) % 12);
     	}
+    	FileWriter writer = new FileWriter("test.csv");
+    	for(String val: head_table) {
+    		writer.append(val);
+    		writer.append(';');
+    	}
+    	writer.append('\n');
     	try (InputStream inputStream = new FileInputStream(new File("data.xlsx"))) { //FilePath from your device
 	        Workbook workbook = StreamingReader.builder().rowCacheSize(200).bufferSize(4096).open(inputStream);
 	        for (Sheet sheet : workbook) {
@@ -59,13 +65,13 @@ public class Main {
 	                    Pattern pattern = Pattern.compile("[\\d ]+:[-\\d \\.]+");
 	                    Matcher matcher = pattern.matcher(getStringCellValue(cell));
 	                    if(i > 0 && j < 2) {
-	                    	arr[i - 1][j] = Double.valueOf(getStringCellValue(cell));
+	                    	arr[i - 1][j] = getStringCellValue(cell);
 	                    }
 	                    while (matcher.find()) {
 	                        String[] values = getStringCellValue(cell).substring(matcher.start(), matcher.end()).replace(" ", "").split(":");
 	                        for(int b = 2; b < 15; b++) {
 	                        	if(values[0].equals(head_table[b])) {
-		                        	arr[i - 1][b] = Double.valueOf(values[1]);
+		                        	arr[i - 1][b] = values[1];
 	                        	}
 	                        }
 	                    }
@@ -82,7 +88,15 @@ public class Main {
 	    			System.out.print(arr[a][b] + "   ");
 	    		System.out.println();
 	        }
-	        
+	        for(int a = 0; a < 4; a++) {
+	    		for(int b = 0; b < 15; b++) {
+	    			writer.append(arr[a][b]);
+                	writer.append(';');
+	    		}
+	    		writer.append('\n');
+            }
+	        writer.flush();
+	    	writer.close();
 	        workbook.close();
 	        inputStream.close();
 
