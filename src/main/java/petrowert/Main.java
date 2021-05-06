@@ -19,10 +19,9 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		Integer i, j;
 		String[] head_table = new String[15];
-		String[][] arr = new String[4][15];
-    	for(int a = 0; a < 4; a++)
-    		for(int b = 0; b < 15; b++)
-    			arr[a][b] = "0";
+    	String[] inter = new String[15];
+    	for(int a = 0; a < 15; a++)
+    		inter[a] = "0";
     	Integer num_cur = 10; // Number current month
 		Integer num_year = 2020; // Number current month
 		Boolean y = false;
@@ -65,36 +64,28 @@ public class Main {
 	                    Pattern pattern = Pattern.compile("[\\d ]+:[-\\d \\.]+");
 	                    Matcher matcher = pattern.matcher(getStringCellValue(cell));
 	                    if(i > 0 && j < 2) {
-	                    	arr[i - 1][j] = getStringCellValue(cell);
+	                    	inter[j] = getStringCellValue(cell);
 	                    }
 	                    while (matcher.find()) {
 	                        String[] values = getStringCellValue(cell).substring(matcher.start(), matcher.end()).replace(" ", "").split(":");
 	                        for(int b = 2; b < 15; b++) {
 	                        	if(values[0].equals(head_table[b])) {
-		                        	arr[i - 1][b] = values[1];
+	                        		inter[b] = values[1];
 	                        	}
 	                        }
 	                    }
 	                	j++;
 	                }
+	                if(i > 0) {
+		                for(int a = 0; a < 15; a++) {
+		                	writer.append(inter[a]);
+		                	writer.append(';');
+		                }
+		                writer.append('\n');
+	                }
 	                i++;
 	            }
 	        }
-	        for(int b = 0; b < 15; b++)
-    			System.out.print(head_table[b] + "   ");
-	        System.out.println();
-	        for(int a = 0; a < 4; a++) {
-	    		for(int b = 0; b < 15; b++)
-	    			System.out.print(arr[a][b] + "   ");
-	    		System.out.println();
-	        }
-	        for(int a = 0; a < 4; a++) {
-	    		for(int b = 0; b < 15; b++) {
-	    			writer.append(arr[a][b]);
-                	writer.append(';');
-	    		}
-	    		writer.append('\n');
-            }
 	        writer.flush();
 	    	writer.close();
 	        workbook.close();
@@ -104,16 +95,6 @@ public class Main {
         e.printStackTrace();
     }
 }
-
-/*private static String regExpession(String text, String expr) {
-	Pattern pattern = Pattern.compile(expr);
-    Matcher matcher = pattern.matcher(text);
-    while (matcher.find()) {
-    	System.out.println("i = " + i);
-        System.out.println(text.substring(matcher.start(), matcher.end()));
-    }
-	return "RESULT";
-}*/
 	
 	private static String getStringCellValue(Cell cell) {
 		try {
