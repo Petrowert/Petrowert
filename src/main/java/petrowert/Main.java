@@ -47,13 +47,13 @@ public class Main {
     		}
     		head_table[k + 2] = String.valueOf(num_year - 1) + zero + String.valueOf((num_cur + k - 1) % 12);
     	}
-    	FileWriter writer = new FileWriter("test.csv");
+    	FileWriter writer = new FileWriter("test_16k.csv");
     	for(String val: head_table) {
     		writer.append(val);
     		writer.append(';');
     	}
     	writer.append('\n');
-    	try (InputStream inputStream = new FileInputStream(new File("data.xlsx"))) { //FilePath from your device
+    	try (InputStream inputStream = new FileInputStream(new File("data_16k.xlsx"))) { //FilePath from your device
 	        Workbook workbook = StreamingReader.builder().rowCacheSize(200).bufferSize(4096).open(inputStream);
 	        for (Sheet sheet : workbook) {
 	        	i = 0;
@@ -83,6 +83,9 @@ public class Main {
 		                }
 		                writer.append('\n');
 	                }
+	                // Elements inter to zero.
+					for(int a = 0; a < 15; a++)
+	            		inter[a] = "0";
 	                i++;
 	            }
 	        }
