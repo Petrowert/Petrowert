@@ -23,7 +23,7 @@ public class Main {
     	// Last payment in data 30.09.2020
     	Integer num_cur = 10; // Number current month
 		Integer num_year = 2020; // Current year
-		Integer period = 3;
+		//Integer period = 3;
 		Boolean y = false;
 		String[] head_table = new String[number_of_month + 3];
     	String[] inter = new String[number_of_month + 3];
@@ -51,12 +51,12 @@ public class Main {
     		}
     		head_table[k + 3] = String.valueOf(num_year - 1) + zero + String.valueOf((num_cur + k) % 12);
     	}
-    	FileWriter writer = new FileWriter("data_only1group.csv");
+    	/*FileWriter writer = new FileWriter("data_only1group.csv");
     	for(String val: head_table) {
     		writer.append(val);
     		writer.append(';');
     	}
-    	writer.append("¹ group");
+    	writer.append("N group");
 		writer.append(';');
     	writer.append('\n');
     	System.out.println();
@@ -79,14 +79,16 @@ public class Main {
 	                        	if(values[0].equals(head_table[b])) {
 	                        		inter[b] = values[1];
 	                        		summ += Double.valueOf(values[1]);
+	                        		//System.out.println("i = " + i + "; summ = " + "; summ = " + "; summ = " + summ);
 	                        	}
 	                        }
 	                    }
 	                	j++;
 	                }
+	                System.out.println();
 	                // Check only 1 group of client
-	                //System.out.println(Double.valueOf(inter[1]) + "       " + summ/12*1.06);
 	                if(i > 0 && Double.valueOf(inter[1]) <= summ/12*1.06) {
+	                	//System.out.println("summ = " + Double.valueOf(inter[1]) + "; summ = " + summ + "; summ/12 = " + summ/12 + "; summ/12*1.06 = " + summ/12*1.06);
 	                	inter[2] = String.valueOf(Math.round(summ/12 * 100.0) / 100.0); // String.valueOf(summ);
 		                for(int a = 0; a < (number_of_month + 3); a++) {
 		                	writer.append(inter[a]);
@@ -95,13 +97,13 @@ public class Main {
 		                if(Double.valueOf(inter[1]) <= summ/12*1.06) {
 		                	writer.append("1");
 		                	writer.append(';');
-		                }	
+		                }
 		                writer.append('\n');
-		                // Elements inter to zero.
-						for(int a = 0; a < (number_of_month + 3); a++)
-							inter[a] = "0";
-		            	summ = 0.;
 	                }
+	                // Elements inter to zero.
+					for(int a = 0; a < (number_of_month + 3); a++)
+						inter[a] = "0";
+	            	summ = 0.;
 	                i++;
 	            }
 	        }
@@ -112,7 +114,7 @@ public class Main {
 
     } catch (Exception e) {
         e.printStackTrace();
-    }
+    }*/
 }
 	
 	private static String getStringCellValue(Cell cell) {
