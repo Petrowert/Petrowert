@@ -36,9 +36,9 @@ public class Main {
 		Integer period = 12;
 		Boolean y = false;
 		String[] head_table = new String[number_of_month + 3];
-    	String[] inter = new String[number_of_month + 3];
+    	Double[] inter = new Double[number_of_month + 4];
     	for(int a = 0; a < (number_of_month + 3); a++)
-    		inter[a] = "0";
+    		inter[a] = 0.;
     	// Regular expression "\[[\d ]+:[\d \.]+];"
     	i = 2;
     	head_table[0] = "Number";
@@ -64,7 +64,7 @@ public class Main {
     	String filename = "test.csv";
     	File file = new File(filename);
     	if(getFileExtension(file).equals("xlsx")) {
-	    	FileWriter writer = new FileWriter("somefile.csv");
+	    	FileWriter writer = new FileWriter("test.csv");
 	    	for(String val: head_table) {
 	    		writer.append(val);
 	    		writer.append(';');
@@ -84,13 +84,13 @@ public class Main {
 		                    Pattern pattern = Pattern.compile("[\\d ]+:[-\\d \\.]+");
 		                    Matcher matcher = pattern.matcher(getStringCellValue(cell));
 		                    if(i > 0 && j < 2) {
-		                    	inter[j] = getStringCellValue(cell);
+		                    	inter[j] = Double.valueOf(getStringCellValue(cell));
 		                    }
 		                    while (matcher.find()) {
 		                        String[] values = getStringCellValue(cell).substring(matcher.start(), matcher.end()).replace(" ", "").split(":");
 		                        for(int b = 3; b < (number_of_month + 3); b++) {
 		                        	if(values[0].equals(head_table[b])) {
-		                        		inter[b] = values[1];
+		                        		inter[b] += Double.valueOf(values[1]);
 		                        		summ += Double.valueOf(values[1]);
 		                        		//System.out.println("i = " + i + "; summ = " + "; summ = " + "; summ = " + summ);
 		                        	}
@@ -102,9 +102,10 @@ public class Main {
 		                // Check only 1 group of client
 		                if(i > 0 && Double.valueOf(inter[1]) <= summ/12*1.06) {
 		                	//System.out.println("summ = " + Double.valueOf(inter[1]) + "; summ = " + summ + "; summ/12 = " + summ/12 + "; summ/12*1.06 = " + summ/12*1.06);
-		                	inter[2] = String.valueOf(Math.round(summ/12 * 100.0) / 100.0); // String.valueOf(summ);
+		                	//inter[2] = String.valueOf(Math.round(summ/12 * 100.0) / 100.0); // String.valueOf(summ);
+		                	inter[2] = Math.round(summ/12 * 100.0) / 100.0;
 			                for(int a = 0; a < (number_of_month + 3); a++) {
-			                	writer.append(inter[a]);
+			                	writer.append(String.valueOf(inter[a]));
 			                	writer.append(';');
 			                }
 			                if(Double.valueOf(inter[1]) <= summ/12*1.06) {
@@ -115,7 +116,7 @@ public class Main {
 		                }
 		                // Elements inter to zero.
 						for(int a = 0; a < (number_of_month + 3); a++)
-							inter[a] = "0";
+							inter[a] = 0.;
 		            	summ = 0.;
 		                i++;
 		            }
@@ -135,15 +136,25 @@ public class Main {
     		Integer s;
     		i = 0;
     		j = 0;
-    		Integer prev = -1;
-    		Integer cur;
+    		//Double prev;
+    		//Double cur;
     		BufferedReader csvReader = new BufferedReader(new FileReader(filename));
     		while ((row = csvReader.readLine()) != null) {
     		    String[] data = row.split(";");
     		    for(String value : data) {
-    		    	if(i > 0)
-    		    		inter[j] = value;
+    		    	if(i > 0) {
+    		    		inter[j] = Double.valueOf(value);
+    		    		//System.out.print("j = " + j);
+    		    	}
     		    	j++;
+    		    }
+    		    if(i > 0) {
+    		    	//prev = inter[15];
+	    		    /*for(String val: data)
+	    		    	System.out.print(val + "\t");
+	    		    System.out.println();*/
+	    		    getCurrentDz(inter, 12, jump, amount_bill);
+	    		    //System.out.println(getCurrentDz(inter, 12, 0));
     		    }
     		    j = 0;
     		    i++;
@@ -152,17 +163,59 @@ public class Main {
     		
     	}
 }
-	private static Double getCurrentDz(String[] arr, Integer period, Integer some) {
+	private static void getCurrentDz(Double[] arr, Integer period, Integer[][] jump, Double[] amount_bill) {
 		Double summ = 0.;
-		Double curDz;
-		for(int a = 3 + some; a < 15; a++) {
-			summ += Double.valueOf(arr[a]);
+		Double[] curDz = new Double[period];
+		Integer count = 15 - period;
+		while(count < 15) {
+			for(int a = count; a < 15; a++)
+				summ += arr[a];
+			curDz[count - 3] = arr[1] - (arr[2]*(15 - count) - summ);
+			
+			summ = 0.;
+			count++;
 		}
-		curDz = Double.valueOf(arr[1]) - (Double.valueOf(arr[2])*period - summ); 
-		return curDz;
+		count = 1;
+		//System.out.println();
+		int prev = (int)Math.round(arr[15]);
+		int cur;
+		while(count < period) {
+			prev = getGroup(curDz[count - 1], arr[2]);
+			//System.out.println("curDz[" + (count - 1) + "] = " + curDz[count - 1] + " group = " + prev);
+			cur = getGroup(curDz[count], arr[2]);
+			jump[prev - 1][cur - 1]++;
+			amount_bill[prev - 1] += arr[count + 2];
+			if(count == 14)
+				amount_bill[cur - 1] += arr[count + 3];
+			//System.out.println("amount_bill[" + (prev - 1) + "] = " + amount_bill[prev - 1] + " arr[" + count + 2 + "] = " + arr[count + 2]);
+			count++;
+		}
+		System.out.println("Matrix: ");
+		for(int a = 0; a < 6; a++) {
+			for(int b = 0; b < 6; b++)
+				System.out.print(jump[a][b] + "\t");
+			System.out.println();
+		}
+		System.out.println("Sum of group: ");
+		for(int a = 0; a < 6; a++)
+			System.out.print(amount_bill[a] + "\t");
+		System.out.println();
+		//return curDz;
 	}
-	private static Integer getGroup(Double cur_dz, Double mp, Integer period) {
-		return 1;
+	private static Integer getGroup(Double cur_dz, Double mp) {
+		if(cur_dz <= mp*1.06)
+			return 1;
+		if(cur_dz <= 6*mp*1.06)
+			return 2;
+		if(cur_dz <= 3*mp*1.06)
+			return 3;
+		if(cur_dz <= 11*mp*1.06)
+			return 4;
+		if(mp*1.06 <= cur_dz)
+			return 5;
+		/*if(cur_dz <= mp*1.06)
+			return 1;*/
+		return null;
 	}
 	
 	private static String getFileExtension(File file) {
